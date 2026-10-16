@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MYSTERY BOX - The Ultimate Classroom Challenge</title>
+    <!-- SheetJS (XLSX) Full Library via Standalone CDN / Local Compatible Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --bg-dark: #0b0f19;
+            --bg-card: #151c2c;
+            --accent-gold: #fbbf24;
+            --accent-cyan: #06b6d4;
+            --accent-purple: #a855f7;
+            --accent-green: #22c55e;
+            --accent-red: #ef4444;
+            --text-light: #f8fafc;
+            --text-dim: #94a3b8;
+            --border-glow: 0 0 15px rgba(251, 191, 36, 0.4);
+            --font-main: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            font-family: var(--font-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 20% 20%, rgba(168, 85, 247, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 80% 80%, rgba(6, 182, 212, 0.15) 0%, transparent 40%);
+        }
+
+        /* HEADER & NAVBAR */
+        header {
+            background: rgba(21, 28, 44, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid rgba(251, 191, 36, 0.3);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-title {
+            font-size: 1.8rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--accent-gold), #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+            text-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+        }
+
+        .audio-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* BUTTONS */
+        .btn {
+            background: linear-gradient(135deg, #1e293b, #334155);
+            color: var(--text-light);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent-gold);
+            box-shadow: 0 6px 20px rgba(251, 191, 36, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, #d97706, #b45309);
+            color: #fff;
+            border-color: var(--accent-gold);
+        }
+
+        .btn-green {
+            background: linear-gradient(135deg, #16a34a, #15803d);
+            border-color: var(--accent-green);
+        }
+
+        .btn-red {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            border-color: var(--accent-red);
+        }
+
+        .btn-cyan {
+            background: linear-gradient(135deg, #0891b2, #0e7490);
+            border-color: var(--accent-cyan);
+        }
+
+        /* CONTAINERS & PAGES */
+        .page {
+            display: none;
+            padding: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            flex: 1;
+        }
+
+        .page.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* HERO MAIN MENU */
+        .hero {
+            text-align: center;
+            padding: 50px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            font-weight: 900;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #fff 30%, var(--accent-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+        }
+
+        .hero p {
+            font-size: 1.4rem;
+            color: var(--text-dim);
+            max-width: 600px;
+            margin-bottom: 40px;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        /* FORM & SETTINGS */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--accent-gold);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1rem;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+            box-shadow: var(--border-glow);
+        }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+
+        /* SCOREBOARD BOARD */
+        .scoreboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .team-card {
+            background: rgba(30, 41, 59, 0.8);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .team-card.active-turn {
+            border-color: var(--accent-gold);
+            background: rgba(251, 191, 36, 0.15);
+            box-shadow: 0 0 25px rgba(251, 191, 36, 0.3);
+            transform: scale(1.03);
+        }
+
+        .team-name {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--text-light);
+        }
+
+        .team-score {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--accent-gold);
+            margin: 5px 0;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .score-controls {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .score-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #fff;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .score-btn:hover { background: var(--accent-gold); color: #000; }
+
+        /* GAME GRID & BOXES */
+        .boxes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .mystery-box {
+            aspect-ratio: 1;
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            border: 3px solid var(--accent-gold);
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: var(--accent-gold);
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5), inset 0 0 15px rgba(251, 191, 36, 0.2);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mystery-box:hover {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 15px 30px rgba(251, 191, 36, 0.4), inset 0 0 25px rgba(251, 191, 36, 0.4);
+        }
+
+        .mystery-box.opened {
+            background: #1e293b;
+            border-color: #475569;
+            color: #475569;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            opacity: 0.5;
+        }
+
+        .box-label {
+            font-size: 0.8rem;
+            margin-top: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-dim);
+        }
+
+        /* MODAL INTERACTION */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(11, 15, 25, 0.95);
+            backdrop-filter: blur(15px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            animation: modalPop 0.3s ease;
+        }
+
+        @keyframes modalPop {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-body {
+            background: var(--bg-card);
+            border: 2px solid var(--accent-gold);
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 30px rgba(251, 191, 36, 0.2);
+            position: relative;
+        }
+
+        .box-type-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-weight: 800;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+
+        .type-soal { background: var(--accent-cyan); color: #000; }
+        .type-bonus { background: var(--accent-gold); color: #000; }
+        .type-jebakan { background: var(--accent-red); color: #fff; }
+        .type-tantangan { background: var(--accent-purple); color: #fff; }
+        .type-strategi { background: var(--accent-green); color: #000; }
+
+        .question-text {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            line-height: 1.4;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .option-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            padding: 18px;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+        }
+
+        .option-btn:hover {
+            background: rgba(251, 191, 36, 0.1);
+            border-color: var(--accent-gold);
+        }
+
+        .option-btn.correct {
+            background: rgba(34, 197, 94, 0.3) !important;
+            border-color: var(--accent-green) !important;
+        }
+
+        .option-btn.wrong {
+            background: rgba(239, 68, 68, 0.3) !important;
+            border-color: var(--accent-red) !important;
+        }
+
+        .timer-display {
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--accent-gold);
+            margin: 15px 0;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* TABLES */
+        .table-container {
+            overflow-x: auto;
+            margin-top: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        th {
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--accent-gold);
+        }
+
+        /* RESPONSIVE DESIGN */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5rem; }
+            .grid-2, .grid-3, .options-grid { grid-template-columns: 1fr; }
+            .question-text { font-size: 1.3rem; }
+            .boxes-grid { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER SYSTEM -->
+    <header>
+        <div class="logo-title">🎁 MYSTERY BOX</div>
+        <div class="audio-controls">
+            <button class="btn btn-cyan" onclick="toggleFullscreen()">🖥️ FULLSCREEN</button>
+            <button class="btn" id="btn-sound-toggle" onclick="toggleAudio()">🔊 SUARA: ON</button>
+            <button class="btn btn-red" onclick="navTo('page-main-menu')">🏠 MENU</button>
+        </div>
+    </header>
+
+    <!-- 1. HALAMAN MENU UTAMA -->
+    <div id="page-main-menu" class="page active">
+        <div class="hero">
+            <h1>MYSTERY BOX</h1>
+            <p>The Ultimate Classroom Challenge - Media Pembelajaran Interaktif Digital</p>
+            <div class="menu-grid">
+                <button class="btn btn-gold" onclick="navTo('page-game-setup')">🎮 MULAI BERMAIN</button>
+                <button class="btn btn-cyan" onclick="navTo('page-teacher-panel')">⚙️ PANEL GURU</button>
+                <button class="btn btn-green" onclick="navTo('page-question-packs')">📚 PAKET SOAL</button>
+                <button class="btn" onclick="navTo('page-guide')">📖 PANDUAN</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. HALAMAN PENGATURAN GAME -->
+    <div id="page-game-setup" class="page">
+        <div class="card">
+            <h2 style="color: var(--accent-gold); margin-bottom: 20px;">⚙️ PENGATURAN PERMAINAN</h2>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Pilih Paket Soal</label>
+                    <select id="setup-pack-select" class="form-control" onchange="updateDefaultBoxCount()"></select>
+                </div>
+                <div class="form-group">
+                    <label>Jumlah Tim (2 - 4)</label>
+                    <input type="number" id="setup-team-count" class="form-control" min="2" max="4" value="2" onchange="renderTeamInputs()">
+                </div>
+            </div>
+
+            <div id="team-names-container" class="grid-2 form-group"></div>
+
+            <div class="grid-3">
+                <div class="form-group">
+                    <label>Jumlah Kotak Misteri</label>
+                    <input type="number" id="setup-box-count" class="form-control" min="4" max="50" value="12">
+                </div>
+                <div class="form-group">
+                    <label>Durasi Menjawab (Detik)</label>
+                    <input type="number" id="setup-timer-duration" class="form-control" value="30">
+                </div>
+                <div class="form-group">
+                    <label>Poin Jawaban Benar</label>
+                    <input type="number" id="setup-points-correct" class="form-control" value="100">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Aktifkan Jenis Kotak Spesial</label>
+                <div style="display: flex; gap: 15px; margin-top: 5px;">
+                    <label><input type="checkbox" id="check-bonus" checked> Bonus</label>
+                    <label><input type="checkbox" id="check-jebakan" checked> Jebakan</label>
+                    <label><input type="checkbox" id="check-tantangan" checked> Tantangan</label>
+                    <label><input type="checkbox" id="check-strategi" checked> Strategi</label>
+                </div>
+            </div>
+
+            <button class="btn btn-gold" style="width: 100%; padding: 15px; margin-top: 10px;" onclick="startGame()">🚀 MULAI BUKA KOTAK!</button>
+        </div>
+    </div>
+
+    <!-- 3. ARENA PERMAINAN -->
+    <div id="page-game-board" class="page">
+        <!-- SCOREBOARD -->
+        <div class="scoreboard" id="scoreboard-container"></div>
+
+        <!-- CONTROL BAR -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <div id="turn-indicator" style="font-size: 1.2rem; font-weight: bold; color: var(--accent-gold);">Giliran: -</div>
+            <div>
+                <button class="btn btn-cyan" onclick="nextTurn()">⏭️ TIM BERIKUTNYA</button>
+                <button class="btn btn-red" onclick="endGame()">🏁 AKHIRI GAME</button>
+            </div>
+        </div>
+
+        <!-- BOXES GRID -->
+        <div class="boxes-grid" id="boxes-grid"></div>
+    </div>
+
+    <!-- 4. PANEL GURU (KELOLA SOAL & EXCEL) -->
+    <div id="page-teacher-panel" class="page">
+        <div class="card">
+            <h2 style="color: var(--accent-gold); margin-bottom: 15px;">📥 IMPOR SOAL EXCEL (.XLSX / .XLS / CSV)</h2>
+            <p style="color: var(--text-dim); margin-bottom: 15px;">Unggah file Excel sesuai format template (Sheet: 'Template'). Pembacaan mendukung 100% karakter khusus & UTF-8.</p>
+            <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 20px;">
+                <input type="file" id="excel-file-input" class="form-control" accept=".xlsx, .xls, .csv">
+                <button class="btn btn-green" onclick="processExcelImport()">📥 IMPOR</button>
+            </div>
+            <div id="import-feedback" style="color: var(--accent-gold); font-weight: bold;"></div>
+        </div>
+
+        <div class="card">
+            <h2 style="color: var(--accent-gold); margin-bottom: 15px;">📝 KELOLA SOAL MANUAL</h2>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Pilih Paket yang Di-edit</label>
+                    <select id="teacher-pack-select" class="form-control" onchange="loadPackToEditor()"></select>
+                </div>
+                <div class="form-group" style="display: flex; align-items: flex-end; gap: 10px;">
+                    <button class="btn btn-gold" onclick="createNewPack()">➕ PAKET BARU</button>
+                    <button class="btn btn-red" onclick="deleteCurrentPack()">🗑️ HAPUS PAKET</button>
+                </div>
+            </div>
+
+            <div id="question-editor-form" style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+                <h3>Tambah / Edit Soal</h3>
+                <div class="form-group" style="margin-top: 10px;">
+                    <label>Teks Pertanyaan</label>
+                    <input type="text" id="edit-q-text" class="form-control">
+                </div>
+                <div class="grid-2">
+                    <div class="form-group"><label>Pilihan A</label><input type="text" id="edit-q-a" class="form-control"></div>
+                    <div class="form-group"><label>Pilihan B</label><input type="text" id="edit-q-b" class="form-control"></div>
+                    <div class="form-group"><label>Pilihan C</label><input type="text" id="edit-q-c" class="form-control"></div>
+                    <div class="form-group"><label>Pilihan D</label><input type="text" id="edit-q-d" class="form-control"></div>
+                    <div class="form-group"><label>Pilihan E (Opsional)</label><input type="text" id="edit-q-e" class="form-control"></div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Kunci Jawaban</label>
+                        <select id="edit-q-correct" class="form-control">
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                            <option value="E">E</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="display: flex; align-items: flex-end;">
+                        <button class="btn btn-green" style="width: 100%;" onclick="saveQuestionToPack()">💾 SIMPAN SOAL</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Pertanyaan</th>
+                            <th>Kunci</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="questions-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. HALAMAN PAKET SOAL -->
+    <div id="page-question-packs" class="page">
+        <div class="card">
+            <h2 style="color: var(--accent-gold); margin-bottom: 20px;">📚 DAFTAR PAKET SOAL TERSIMPAN</h2>
+            <div id="packs-list-container" class="grid-2"></div>
+            <div style="margin-top: 20px; display: flex; gap: 10px;">
+                <button class="btn btn-cyan" onclick="exportPacksJSON()">📤 EKSPOR JSON</button>
+                <button class="btn btn-red" onclick="resetToDefaultPacks()">🔄 RESET DATA CONTOH</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. HALAMAN PANDUAN -->
+    <div id="page-guide" class="page">
+        <div class="card">
+            <h2 style="color: var(--accent-gold); margin-bottom: 15px;">📖 PANDUAN BERMAIN & IMPOR EXCEL</h2>
+            <div style="line-height: 1.8; color: var(--text-light);">
+                <h3>1. Persiapan Permainan</h3>
+                <p>Guru memilih paket soal, menentukan jumlah tim (2-4), serta mengatur durasi waktu dan poin melalui menu <strong>Mulai Bermain</strong>.</p>
+                
+                <h3 style="margin-top: 15px;">2. Format Impor Excel (.xlsx)</h3>
+                <p>Buat sheet bernama <strong>Template</strong> dengan susunan kolom sebagai berikut:</p>
+                <ul>
+                    <li><strong>Kolom A:</strong> No</li>
+                    <li><strong>Kolom B:</strong> Pertanyaan</li>
+                    <li><strong>Kolom C-G:</strong> Jawaban A, Jawaban B, Jawaban C, Jawaban D, Jawaban E</li>
+                    <li><strong>Kolom H:</strong> Jawaban Benar (Isi dengan huruf A, B, C, D, atau E)</li>
+                </ul>
+
+                <h3 style="margin-top: 15px;">3. Jenis Kotak Misteri</h3>
+                <ul>
+                    <li><strong style="color: var(--accent-cyan);">Kotak Soal:</strong> Pertanyaan kurikulum.</li>
+                    <li><strong style="color: var(--accent-gold);">Kotak Bonus:</strong> Hadiah poin instan.</li>
+                    <li><strong style="color: var(--accent-red);">Kotak Jebakan:</strong> Pengurangan poin atau hilangnya giliran.</li>
+                    <li><strong style="color: var(--accent-purple);">Kotak Tantangan:</strong> Demonstrasi fisik/teka-teki dinilai manual oleh guru.</li>
+                    <li><strong style="color: var(--accent-green);">Kotak Strategi:</strong> Perlindungan poin/poin ganda.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. HALAMAN HASIL AKHIR -->
+    <div id="page-game-results" class="page">
+        <div class="card" style="text-align: center;">
+            <h1 style="color: var(--accent-gold); font-size: 3rem; margin-bottom: 10px;">🏆 PENGUMUMAN PEMENANG 🏆</h1>
+            <div id="winner-podium" style="margin: 30px 0;"></div>
+            <div style="display: flex; justify-content: center; gap: 15px;">
+                <button class="btn btn-gold" onclick="navTo('page-game-setup')">🔄 MAIN LAGI</button>
+                <button class="btn btn-green" onclick="exportResultsCSV()">📊 EKSPOR REKAP CSV</button>
+                <button class="btn" onclick="navTo('page-main-menu')">🏠 MENU UTAMA</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL POPUP UNTUK ISI KOTAK -->
+    <div class="modal-overlay" id="box-modal">
+        <div class="modal-body">
+            <div id="modal-badge" class="box-type-badge">TYPE</div>
+            <div id="modal-timer" class="timer-display">30</div>
+            <div id="modal-question" class="question-text">Teks Pertanyaan Muncul Di Sini</div>
+            <div id="modal-options" class="options-grid"></div>
+            <div id="modal-action-bar" style="display: flex; justify-content: center; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-green" id="btn-manual-correct" onclick="resolveBoxOutcome(true)">✅ BENAR (+Poin)</button>
+                <button class="btn btn-red" id="btn-manual-wrong" onclick="resolveBoxOutcome(false)">❌ SALAH</button>
+                <button class="btn btn-gold" id="btn-close-modal" style="display: none;" onclick="closeBoxModal()">LANJUT ➡️</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT LOGIKA PERMAINAN -->
+    <script>
+        /* ===================================================
+           1. FULLSCREEN TOGGLE
+           =================================================== */
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    alert(`Gagal masuk mode fullscreen: ${err.message}`);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        /* ===================================================
+           2. AUDIO SYNTHESIZER (WEB AUDIO API OFFLINE)
+           =================================================== */
+        let audioCtx = null;
+        let soundEnabled = true;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            initAudio();
+            
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'open') {
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.exponentialRampToValueAtTime(800, now + 0.2);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                osc.start(now);
+                osc.stop(now + 0.2);
+            } else if (type === 'correct') {
+                osc.frequency.setValueAtTime(523.25, now); // C5
+                osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+                osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                osc.start(now);
+                osc.stop(now + 0.4);
+            } else if (type === 'wrong') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(200, now);
+                osc.frequency.setValueAtTime(120, now + 0.15);
+                gain.gain.setValueAtTime(0.4, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                osc.start(now);
+                osc.stop(now + 0.3);
+            }
+        }
+
+        function toggleAudio() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('btn-sound-toggle').innerText = soundEnabled ? "🔊 SUARA: ON" : "🔇 SUARA: OFF";
+        }
+
+        /* ===================================================
+           3. STATE MANAGEMENT & LOCAL STORAGE
+           =================================================== */
+        const DEFAULT_PACKS = [
+            {
+                id: 'pack-sd-1',
+                title: 'IPAS & Matematika Kelas 5 SD',
+                questions: [
+                    { q: 'Berapakah hasil dari 12 × 15?', a: '150', b: '180', c: '160', d: '200', e: '', correct: 'B' },
+                    { q: 'Organ tubuh manusia yang berfungsi memompa darah adalah...', a: 'Paru-paru', b: 'Hati', c: 'Jantung', d: 'Ginjal', e: '', correct: 'C' },
+                    { q: 'Planet terbesar dalam tata surya kita adalah...', a: 'Mars', b: 'Bumi', c: 'Saturnus', d: 'Jupiter', e: '', correct: 'D' },
+                    { q: 'Proses pembuatan makanan pada tumbuhan hijau disebut...', a: 'Respirasi', b: 'Fotosintesis', c: 'Adaptasi', d: 'Transpirasi', e: '', correct: 'B' },
+                    { q: 'Pecahan sederhana dari 8/12 adalah...', a: '2/3', b: '1/2', c: '3/4', d: '4/5', e: '', correct: 'A' },
+                    { q: 'Sudut yang besarnya 90 derajat disebut sudut...', a: 'Lancip', b: 'Tumpul', c: 'Siku-siku', d: 'Lurus', e: '', correct: 'C' }
+                ]
+            }
+        ];
+
+        let state = {
+            packs: [],
+            currentGame: {
+                packId: '',
+                teams: [],
+                currentTeamIdx: 0,
+                boxes: [],
+                config: {
+                    timer: 30,
+                    pointsCorrect: 100,
+                    boxCount: 12
+                }
+            }
+        };
+
+        function loadStorage() {
+            const data = localStorage.getItem('mystery_box_packs');
+            if (data) {
+                try { state.packs = JSON.parse(data); } catch(e) { state.packs = DEFAULT_PACKS; }
+            } else {
+                state.packs = DEFAULT_PACKS;
+                saveStorage();
+            }
+        }
+
+        function saveStorage() {
+            localStorage.setItem('mystery_box_packs', JSON.stringify(state.packs));
+        }
+
+        /* ===================================================
+           4. NAVIGATION SYSTEM
+           =================================================== */
+        function navTo(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            
+            if (pageId === 'page-game-setup') populateSetupPacks();
+            if (pageId === 'page-teacher-panel') populateTeacherPacks();
+            if (pageId === 'page-question-packs') renderPacksList();
+        }
+
+        /* ===================================================
+           5. GAME SETUP & INITIALIZATION
+           =================================================== */
+        function populateSetupPacks() {
+            const select = document.getElementById('setup-pack-select');
+            select.innerHTML = '';
+            state.packs.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.id;
+                opt.innerText = p.title + ` (${p.questions.length} Soal)`;
+                select.appendChild(opt);
+            });
+            updateDefaultBoxCount();
+            renderTeamInputs();
+        }
+
+        function updateDefaultBoxCount() {
+            const packId = document.getElementById('setup-pack-select').value;
+            const selectedPack = state.packs.find(p => p.id === packId);
+            if (selectedPack) {
+                document.getElementById('setup-box-count').value = selectedPack.questions.length;
+            }
+        }
+
+        function renderTeamInputs() {
+            const count = parseInt(document.getElementById('setup-team-count').value) || 2;
+            const container = document.getElementById('team-names-container');
+            container.innerHTML = '';
+            for (let i = 1; i <= count; i++) {
+                container.innerHTML += `
+                    <div class="form-group">
+                        <label>Nama Tim ${i}</label>
+                        <input type="text" id="team-name-input-${i}" class="form-control" value="TIM ${String.fromCharCode(64 + i)}">
+                    </div>
+                `;
+            }
+        }
+
+        function startGame() {
+            const packId = document.getElementById('setup-pack-select').value;
+            const teamCount = parseInt(document.getElementById('setup-team-count').value);
+            const boxCount = parseInt(document.getElementById('setup-box-count').value);
+            const timerDur = parseInt(document.getElementById('setup-timer-duration').value);
+            const ptsCorrect = parseInt(document.getElementById('setup-points-correct').value);
+
+            const selectedPack = state.packs.find(p => p.id === packId);
+            if (!selectedPack || selectedPack.questions.length === 0) {
+                alert('Paket soal kosong! Sediakan soal terlebih dahulu.');
+                return;
+            }
+
+            // Build Teams
+            let teams = [];
+            for (let i = 1; i <= teamCount; i++) {
+                const name = document.getElementById(`team-name-input-${i}`).value || `TIM ${i}`;
+                teams.push({ id: i, name: name, score: 0, shield: false });
+            }
+
+            // Build Box Composition
+            let boxes = [];
+            let qPool = [...selectedPack.questions];
+            
+            const checkBonus = document.getElementById('check-bonus').checked;
+            const checkJebakan = document.getElementById('check-jebakan').checked;
+            const checkTantangan = document.getElementById('check-tantangan').checked;
+            const checkStrategi = document.getElementById('check-strategi').checked;
+
+            for (let i = 1; i <= boxCount; i++) {
+                let boxType = 'SOAL';
+                let rand = Math.random();
+
+                if (rand < 0.15 && checkBonus) boxType = 'BONUS';
+                else if (rand < 0.28 && checkJebakan) boxType = 'JEBAKAN';
+                else if (rand < 0.40 && checkTantangan) boxType = 'TANTANGAN';
+                else if (rand < 0.50 && checkStrategi) boxType = 'STRATEGI';
+
+                let payload = {};
+
+                if (boxType === 'SOAL') {
+                    if (qPool.length === 0) qPool = [...selectedPack.questions];
+                    const qIdx = Math.floor(Math.random() * qPool.length);
+                    payload = qPool.splice(qIdx, 1)[0];
+                } else if (boxType === 'BONUS') {
+                    payload = { points: 50, msg: 'Dapat Bonus Poin Instan!' };
+                } else if (boxType === 'JEBAKAN') {
+                    payload = { points: -30, msg: 'Awas! Pengurangan Poin!' };
+                } else if (boxType === 'TANTANGAN') {
+                    payload = { msg: 'Lakukan Peragaan Singkat atau Jawab Teka-Teki Guru!' };
+                } else if (boxType === 'STRATEGI') {
+                    payload = { msg: 'Mendapatkan Pelindung Poin dari Jebakan!' };
+                }
+
+                boxes.push({
+                    id: i,
+                    type: boxType,
+                    opened: false,
+                    data: payload
+                });
+            }
+
+            state.currentGame = {
+                packId: packId,
+                teams: teams,
+                currentTeamIdx: 0,
+                boxes: boxes,
+                config: { timer: timerDur, pointsCorrect: ptsCorrect, boxCount: boxCount }
+            };
+
+            renderGameBoard();
+            navTo('page-game-board');
+        }
+
+        /* ===================================================
+           6. GAMEPLAY & BOARD RENDER
+           =================================================== */
+        function renderGameBoard() {
+            // Render Scoreboard
+            const sb = document.getElementById('scoreboard-container');
+            sb.innerHTML = '';
+            state.currentGame.teams.forEach((t, idx) => {
+                const isActive = idx === state.currentGame.currentTeamIdx;
+                sb.innerHTML += `
+                    <div class="team-card ${isActive ? 'active-turn' : ''}">
+                        <div class="team-name">${t.name} ${t.shield ? '🛡️' : ''}</div>
+                        <div class="team-score">${t.score}</div>
+                        <div class="score-controls">
+                            <button class="score-btn" onclick="adjustScore(${idx}, 10)">+</button>
+                            <button class="score-btn" onclick="adjustScore(${idx}, -10)">-</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Active Turn Text
+            const currTeam = state.currentGame.teams[state.currentGame.currentTeamIdx];
+            document.getElementById('turn-indicator').innerText = `Giliran Sekarang: ${currTeam.name}`;
+
+            // Render Grid
+            const grid = document.getElementById('boxes-grid');
+            grid.innerHTML = '';
+            state.currentGame.boxes.forEach(b => {
+                grid.innerHTML += `
+                    <div class="mystery-box ${b.opened ? 'opened' : ''}" onclick="openBox(${b.id})">
+                        ${b.opened ? '✖' : b.id}
+                        <div class="box-label">${b.opened ? 'TERBUKA' : 'BOX'}</div>
+                    </div>
+                `;
+            });
+        }
+
+        function adjustScore(teamIdx, delta) {
+            state.currentGame.teams[teamIdx].score += delta;
+            renderGameBoard();
+        }
+
+        function nextTurn() {
+            state.currentGame.currentTeamIdx = (state.currentGame.currentTeamIdx + 1) % state.currentGame.teams.length;
+            renderGameBoard();
+        }
+
+        /* ===================================================
+           7. MODAL INTERACTION & TIMER
+           =================================================== */
+        let activeBox = null;
+        let timerInterval = null;
+        let timeLeft = 0;
+
+        function openBox(boxId) {
+            const box = state.currentGame.boxes.find(b => b.id === boxId);
+            if (!box || box.opened) return;
+
+            box.opened = true;
+            activeBox = box;
+            playSound('open');
+
+            const modal = document.getElementById('box-modal');
+            const badge = document.getElementById('modal-badge');
+            const qText = document.getElementById('modal-question');
+            const optsContainer = document.getElementById('modal-options');
+            const btnCorrect = document.getElementById('btn-manual-correct');
+            const btnWrong = document.getElementById('btn-manual-wrong');
+            const btnClose = document.getElementById('btn-close-modal');
+
+            badge.className = `box-type-badge type-${box.type.toLowerCase()}`;
+            badge.innerText = box.type;
+            optsContainer.innerHTML = '';
+            btnClose.style.display = 'none';
+            btnCorrect.style.display = 'inline-flex';
+            btnWrong.style.display = 'inline-flex';
+
+            if (box.type === 'SOAL') {
+                qText.innerText = box.data.q;
+                startTimer(state.currentGame.config.timer);
+
+                const choices = [
+                    { key: 'A', text: box.data.a },
+                    { key: 'B', text: box.data.b },
+                    { key: 'C', text: box.data.c },
+                    { key: 'D', text: box.data.d },
+                    { key: 'E', text: box.data.e }
+                ];
+
+                choices.forEach(c => {
+                    if (c.text && c.text.toString().trim() !== '') {
+                        optsContainer.innerHTML += `
+                            <button class="option-btn" onclick="checkAnswer('${c.key}', this)">
+                                <strong>${c.key}.</strong> ${c.text}
+                            </button>
+                        `;
+                    }
+                });
+            } else if (box.type === 'BONUS') {
+                stopTimer();
+                qText.innerText = box.data.msg;
+                optsContainer.innerHTML = `<h2 style="color: var(--accent-gold);">+${box.data.points} POIN</h2>`;
+                btnCorrect.style.display = 'none';
+                btnWrong.style.display = 'none';
+                btnClose.style.display = 'inline-flex';
+                
+                // Direct Award
+                state.currentGame.teams[state.currentGame.currentTeamIdx].score += box.data.points;
+            } else if (box.type === 'JEBAKAN') {
+                stopTimer();
+                let currTeam = state.currentGame.teams[state.currentGame.currentTeamIdx];
+                if (currTeam.shield) {
+                    qText.innerText = "Jebakan Terhalang oleh Pelindung Strategi! (Tidak Ada Pengurangan Poin)";
+                    currTeam.shield = false;
+                } else {
+                    qText.innerText = box.data.msg;
+                    optsContainer.innerHTML = `<h2 style="color: var(--accent-red);">${box.data.points} POIN</h2>`;
+                    currTeam.score = Math.max(0, currTeam.score + box.data.points);
+                }
+                btnCorrect.style.display = 'none';
+                btnWrong.style.display = 'none';
+                btnClose.style.display = 'inline-flex';
+            } else if (box.type === 'TANTANGAN') {
+                stopTimer();
+                qText.innerText = box.data.msg;
+                btnCorrect.innerText = '✅ BERHASIL (+50)';
+                btnWrong.innerText = '❌ GAGAL (0)';
+            } else if (box.type === 'STRATEGI') {
+                stopTimer();
+                qText.innerText = box.data.msg;
+                state.currentGame.teams[state.currentGame.currentTeamIdx].shield = true;
+                btnCorrect.style.display = 'none';
+                btnWrong.style.display = 'none';
+                btnClose.style.display = 'inline-flex';
+            }
+
+            modal.classList.add('active');
+        }
+
+        function startTimer(duration) {
+            stopTimer();
+            timeLeft = duration;
+            const timerDisplay = document.getElementById('modal-timer');
+            timerDisplay.style.display = 'block';
+            timerDisplay.innerText = timeLeft;
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerDisplay.innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    stopTimer();
+                    playSound('wrong');
+                    timerDisplay.innerText = "WAKTU HABIS!";
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            document.getElementById('modal-timer').style.display = 'none';
+        }
+
+        function checkAnswer(selectedKey, btnElem) {
+            stopTimer();
+            const isCorrect = selectedKey === activeBox.data.correct;
+            
+            document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+
+            if (isCorrect) {
+                btnElem.classList.add('correct');
+                playSound('correct');
+                state.currentGame.teams[state.currentGame.currentTeamIdx].score += state.currentGame.config.pointsCorrect;
+            } else {
+                btnElem.classList.add('wrong');
+                playSound('wrong');
+            }
+
+            document.getElementById('btn-manual-correct').style.display = 'none';
+            document.getElementById('btn-manual-wrong').style.display = 'none';
+            document.getElementById('btn-close-modal').style.display = 'inline-flex';
+        }
+
+        function resolveBoxOutcome(isSuccess) {
+            stopTimer();
+            if (activeBox.type === 'TANTANGAN' && isSuccess) {
+                state.currentGame.teams[state.currentGame.currentTeamIdx].score += 50;
+                playSound('correct');
+            } else if (isSuccess) {
+                state.currentGame.teams[state.currentGame.currentTeamIdx].score += state.currentGame.config.pointsCorrect;
+                playSound('correct');
+            } else {
+                playSound('wrong');
+            }
+            closeBoxModal();
+        }
+
+        function closeBoxModal() {
+            document.getElementById('box-modal').classList.remove('active');
+            renderGameBoard();
+            
+            // Check Game End
+            const unOpened = state.currentGame.boxes.filter(b => !b.opened);
+            if (unOpened.length === 0) {
+                endGame();
+            }
+        }
+
+        /* ===================================================
+           8. GAME OVER & RESULTS
+           =================================================== */
+        function endGame() {
+            let sorted = [...state.currentGame.teams].sort((a,b) => b.score - a.score);
+            const podium = document.getElementById('winner-podium');
+            podium.innerHTML = '';
+
+            sorted.forEach((t, idx) => {
+                podium.innerHTML += `
+                    <div class="card" style="margin: 10px auto; max-width: 400px; border-color: ${idx===0?'var(--accent-gold)':'#475569'}">
+                        <h2>#${idx+1} ${t.name}</h2>
+                        <h3 style="color: var(--accent-gold);">${t.score} POIN</h3>
+                    </div>
+                `;
+            });
+
+            playSound('correct');
+            navTo('page-game-results');
+        }
+
+        function exportResultsCSV() {
+            let csv = "Juara,Nama Tim,Total Skor\n";
+            let sorted = [...state.currentGame.teams].sort((a,b) => b.score - a.score);
+            sorted.forEach((t, idx) => {
+                csv += `${idx+1},"${t.name}",${t.score}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Hasil_MysteryBox_${Date.now()}.csv`;
+            a.click();
+        }
+
+        /* ===================================================
+           9. TEACHER PANEL & ROBUST EXCEL PARSER
+           =================================================== */
+        function populateTeacherPacks() {
+            const select = document.getElementById('teacher-pack-select');
+            select.innerHTML = '';
+            state.packs.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.id;
+                opt.innerText = p.title;
+                select.appendChild(opt);
+            });
+            loadPackToEditor();
+        }
+
+        function loadPackToEditor() {
+            const packId = document.getElementById('teacher-pack-select').value;
+            const pack = state.packs.find(p => p.id === packId);
+            const tbody = document.getElementById('questions-table-body');
+            tbody.innerHTML = '';
+
+            if (!pack) return;
+
+            pack.questions.forEach((q, idx) => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${idx+1}</td>
+                        <td>${q.q}</td>
+                        <td><strong style="color:var(--accent-gold);">${q.correct}</strong></td>
+                        <td>
+                            <button class="score-btn" onclick="deleteQuestion(${idx})">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function saveQuestionToPack() {
+            const packId = document.getElementById('teacher-pack-select').value;
+            const pack = state.packs.find(p => p.id === packId);
+            if (!pack) return;
+
+            const qText = document.getElementById('edit-q-text').value;
+            const qA = document.getElementById('edit-q-a').value;
+            const qB = document.getElementById('edit-q-b').value;
+            const qC = document.getElementById('edit-q-c').value;
+            const qD = document.getElementById('edit-q-d').value;
+            const qE = document.getElementById('edit-q-e').value;
+            const qCorrect = document.getElementById('edit-q-correct').value;
+
+            if (!qText || !qA || !qB) {
+                alert('Teks pertanyaan dan minimal pilihan A & B wajib diisi!');
+                return;
+            }
+
+            pack.questions.push({ q: qText, a: qA, b: qB, c: qC, d: qD, e: qE, correct: qCorrect });
+            saveStorage();
+            loadPackToEditor();
+
+            document.getElementById('edit-q-text').value = '';
+            document.getElementById('edit-q-a').value = '';
+            document.getElementById('edit-q-b').value = '';
+            document.getElementById('edit-q-c').value = '';
+            document.getElementById('edit-q-d').value = '';
+            document.getElementById('edit-q-e').value = '';
+        }
+
+        function deleteQuestion(idx) {
+            const packId = document.getElementById('teacher-pack-select').value;
+            const pack = state.packs.find(p => p.id === packId);
+            if (pack) {
+                pack.questions.splice(idx, 1);
+                saveStorage();
+                loadPackToEditor();
+            }
+        }
+
+        function createNewPack() {
+            const title = prompt('Masukkan Nama Paket Soal Baru:');
+            if (title) {
+                const newPack = { id: 'pack-' + Date.now(), title: title, questions: [] };
+                state.packs.push(newPack);
+                saveStorage();
+                populateTeacherPacks();
+            }
+        }
+
+        function deleteCurrentPack() {
+            const packId = document.getElementById('teacher-pack-select').value;
+            if (confirm('Hapus paket soal ini?')) {
+                state.packs = state.packs.filter(p => p.id !== packId);
+                if (state.packs.length === 0) state.packs = [...DEFAULT_PACKS];
+                saveStorage();
+                populateTeacherPacks();
+            }
+        }
+
+        function processExcelImport() {
+            const input = document.getElementById('excel-file-input');
+            const feedback = document.getElementById('import-feedback');
+
+            if (!input.files || input.files.length === 0) {
+                feedback.innerText = "❌ Silakan pilih file Excel/CSV terlebih dahulu.";
+                return;
+            }
+
+            const file = input.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    
+                    const sheetName = workbook.SheetNames.includes('Template') ? 'Template' : workbook.SheetNames[0];
+                    const sheet = workbook.Sheets[sheetName];
+                    const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+                    let importedQuestions = [];
+                    
+                    for (let i = 0; i < rows.length; i++) {
+                        let r = rows[i];
+                        if (!r || r.length < 3) continue;
+
+                        let col0 = (r[0] || '').toString().trim();
+                        let col1 = (r[1] || '').toString().trim();
+
+                        // Skip header rows
+                        if (col0.toUpperCase() === 'NO' || col1.toUpperCase() === 'PERTANYAAN' || col0.includes('TEMPLATE')) {
+                            continue;
+                        }
+
+                        if (col1 !== '') {
+                            let key = (r[7] || r[6] || 'A').toString().trim().toUpperCase();
+                            if (!['A','B','C','D','E'].includes(key)) key = 'A';
+
+                            importedQuestions.push({
+                                q: col1,
+                                a: (r[2] || '').toString().trim(),
+                                b: (r[3] || '').toString().trim(),
+                                c: (r[4] || '').toString().trim(),
+                                d: (r[5] || '').toString().trim(),
+                                e: (r[6] && r[7] ? r[6].toString().trim() : ''),
+                                correct: key
+                            });
+                        }
+                    }
+
+                    if (importedQuestions.length > 0) {
+                        const newPack = {
+                            id: 'pack-excel-' + Date.now(),
+                            title: file.name.replace(/\.[^/.]+$/, ""),
+                            questions: importedQuestions
+                        };
+                        state.packs.push(newPack);
+                        saveStorage();
+                        feedback.innerText = `✅ Berhasil mengimpor ${importedQuestions.length} soal ke dalam paket soal!`;
+                        populateTeacherPacks();
+                    } else {
+                        feedback.innerText = "⚠️ Tidak ada baris soal valid yang ditemukan dalam file.";
+                    }
+                } catch(err) {
+                    feedback.innerText = "❌ Gagal membaca file: " + err.message;
+                }
+            };
+
+            reader.readAsArrayBuffer(file);
+        }
+
+        /* ===================================================
+           10. PACK MANAGEMENTS & JSON EXPORT
+           =================================================== */
+        function renderPacksList() {
+            const container = document.getElementById('packs-list-container');
+            container.innerHTML = '';
+            state.packs.forEach(p => {
+                container.innerHTML += `
+                    <div class="card">
+                        <h3 style="color:var(--accent-gold);">${p.title}</h3>
+                        <p style="color:var(--text-dim); margin-top:5px;">Jumlah Soal: ${p.questions.length}</p>
+                    </div>
+                `;
+            });
+        }
+
+        function exportPacksJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state.packs, null, 2));
+            const dlAnchor = document.createElement('a');
+            dlAnchor.setAttribute("href", dataStr);
+            dlAnchor.setAttribute("download", `Paket_Soal_MysteryBox_${Date.now()}.json`);
+            dlAnchor.click();
+        }
+
+        function resetToDefaultPacks() {
+            if (confirm('Kembalikan ke data paket contoh bawaan?')) {
+                state.packs = DEFAULT_PACKS;
+                saveStorage();
+                renderPacksList();
+            }
+        }
+
+        // INITIALIZE APPLICATION
+        window.onload = function() {
+            loadStorage();
+        };
+    </script>
+</body>
+</html>
